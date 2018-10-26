@@ -4,7 +4,7 @@
   "description": "dumb image viewer with correct gif timing",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "electron ."
   },
   "repository": {
     "type": "git",
