@@ -1,0 +1,22 @@
+{
+  "name": "viewer",
+  "version": "0.1.0",
+  "description": "dumb image viewer with correct gif timing",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/egg303/viewer.git"
+  },
+  "author": "egg303",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/egg303/viewer/issues"
+  },
+  "homepage": "https://github.com/egg303/viewer#readme",
+  "devDependencies": {
+    "electron": "^3.0.6"
+  }
+}
