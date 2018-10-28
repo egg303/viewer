@@ -13,20 +13,6 @@ function createWindow(){
 	// Öffnen der DevTools
 	//win.webContents.openDevTools()
 	
-	//let dZoom = 1.0
-	//let dSize
-	//dSize = win.getContentSize()
-	//dZoomWidth = dSize[0]/550
-	//dZoomHeight = dSize[1]/776
-	//dZoom = Math.min(dZoom,dZoomWidth,dZoomHeight)
-	//console.log(dZoom)
-	//console.log(dSize)
-	//win.webContents.getZoomFactor(console.log)
-	////win.document.body.style.zoom = dZoom
-	//win.webContents.setZoomFactor(2.0)
-	//console.log(dZoom)
-	//win.webContents.getZoomFactor(console.log)
-	
 	// Ausgegeben, wenn das Fenster geschlossen wird.
 	win.on('closed', () => {
 		// Dereferenzieren des Fensterobjekts, normalerweise würden Sie das Fenster in einem
