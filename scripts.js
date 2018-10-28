@@ -2,15 +2,21 @@ const {webFrame} = require('electron');
 
 let dZoom, dImage, dZoomWidth, dZoomHeight;
 dZoom = 1.0;
+dZoomWidth = 0.0;
+dZoomHeight = 0.0;
 dImage = document.querySelector("#dImg");
-dZoomWidth = (window.innerWidth)/dImage.width;
-dZoomHeight = (window.innerHeight)/dImage.height;
-dZoom = Math.min(dZoom,dZoomWidth,dZoomHeight);
+dImage.onload = function(){
+	dZoomWidth = (window.innerWidth)/dImage.width;
+	dZoomHeight = (window.innerHeight)/dImage.height;
+	dZoom = Math.min(dZoom,dZoomWidth,dZoomHeight);
+	webFrame.setZoomFactor(dZoom);
+	dCenter();
+}
 dScrollBarX = 0;
 dScrollBarY = 0;
 dImgX = 0;
 dImgY = 0;
-webFrame.setZoomFactor(dZoom);
+
 //console.log(dZoom);
 /*dImgX = (window.innerWidth/2)-(dImage.width/2);
 dImgY = (window.innerHeight/2)-(dImage.height/2);
@@ -58,6 +64,7 @@ function dCenter(){
 	console.log([dImgX,(window.innerWidth/2),(dImage.height/2)]);
 	console.log([dImgY,(window.innerHeight/2),(dImage.height/2)]);
 	*/
+	console.log([window.outerWidth, window.innerWidth]);
 }
 
 window.addEventListener ('resize', (evt)=>{
@@ -68,7 +75,6 @@ document.addEventListener ('keydown', (evt) => {
 	switch (evt.key) {
 		// test key: center
 		case "h":
-
 			break;
 		case "j":
 			dZoom = 4.0;
@@ -83,6 +89,7 @@ document.addEventListener ('keydown', (evt) => {
 				dZoom = 5.0;
 			webFrame.setZoomFactor(dZoom);
 			console.log(dZoom);
+			console.log(dImage.width);
 			break;
 		// zoom out
 		case "-":
@@ -153,8 +160,24 @@ document.addEventListener ('keydown', (evt) => {
 			}
 			img_.src = dImage.src;
 			break;
+		// fit window to image
+		case "Enter":
+			img_ = new Image();
+			img_.onload = function(){
+				var img_w = this.width,
+				img_h = this.height;
+				// window.innerWidth gives not the real px-width back, if zoomFactor is other than 1.0
+				if(Math.ceil(img_h*dZoom)+(window.outerHeight-Math.floor(window.innerHeight*dZoom))<1000)
+					window.resizeTo(Math.ceil(img_w*dZoom)+(window.outerWidth-Math.floor(window.innerWidth*dZoom)),Math.ceil(img_h*dZoom)+(window.outerHeight-Math.floor(window.innerHeight*dZoom)));
+				else
+					window.resizeTo(34+Math.ceil(img_w*dZoom)+(window.outerWidth-Math.floor(window.innerWidth*dZoom)),Math.ceil(img_h*dZoom)+(window.outerHeight-Math.floor(window.innerHeight*dZoom)));
+				console.log([window.outerWidth,window.innerWidth,dZoom]);
+				img_ = null;
+			}
+			img_.src = dImage.src;
+			break;
 		default:
-			//console.log(evt.key);
+			console.log(evt.key);
 			break;
 	}
 })

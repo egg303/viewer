@@ -5,7 +5,7 @@ let win
 
 function createWindow(){
 	// Erstelle das Browser Fenster
-	win = new BrowserWindow({width: 800, height: 600})
+	win = new BrowserWindow({width: 800, height: 600,/*frame: false*/})
 	
 	// und Laden der index.html der App.
 	win.loadFile('index.html')
