@@ -1,5 +1,10 @@
 const {webFrame} = require('electron');
 
+var remote = require('electron'); // Load remote compnent that contains the dialog dependency
+var fs = require('fs'); // Load the File System to execute our common tasks (CRUD)
+var app = require('electron').remote; 
+var dialog = app.dialog;
+
 let dZoom, dImage, dZoomWidth, dZoomHeight;
 dZoom = 1.0;
 dZoomWidth = 0.0;
@@ -16,6 +21,8 @@ dScrollBarX = 0;
 dScrollBarY = 0;
 dImgX = 0;
 dImgY = 0;
+dCenterX = 0;
+dCenterY = 0;
 
 //console.log(dZoom);
 /*dImgX = (window.innerWidth/2)-(dImage.width/2);
@@ -26,29 +33,40 @@ console.log([dImgX,(window.innerWidth/2),(dImage.height/2)]);
 console.log([dImgY,(window.innerHeight/2),(dImage.height/2)]);
 */
 //console.log(dZoom, window.innerHeight, dImage.height*dZoom,dImage.height);
+
+function getDScrollBarX(){
+	return dScrollBarX;
+}
+function getDScrollBarY(){
+	return dScrollBarY;
+}
+
 function dCenter(){
+	console.log("center: "+[dCenterX,dCenterY]);
 	dScrollBarX = dImage.scrollWidth+dImgX>document.documentElement.clientWidth ? true : false;
 	dScrollBarY = dImage.scrollHeight+dImgY>document.documentElement.clientHeight ? true : false;
 	dImage.style.left = "0px";
 	if(dScrollBarX){
-		dScrollX = (dImage.width/2)-((window.innerWidth)/2);
+		dScrollX = getDCenterX()-((window.innerWidth)/2);
 		//dImage.style.left = "0px";
 		dImgX = ((window.innerWidth)/2)-(dImage.width/2);
 		if(dImgX<0) dImgX = 0;
 		dImage.style.left = dImgX.toString()+"px";
 	} else {
 		dScrollX = 0;
+		//setDCenterX((dImage.width/2));
 		dImgX = ((window.innerWidth)/2)-(dImage.width/2);
 		dImage.style.left = dImgX.toString()+"px";
 	}
 	if(dScrollBarY){
-		dScrollY = (dImage.height/2)-((window.innerHeight)/2);
+		dScrollY = getDCenterY()-((window.innerHeight)/2);
 		//dImage.style.top = "0px";
 		dImgY = (window.innerHeight/2)-(dImage.height/2);
 		if(dImgY<0) dImgY=0;
 		dImage.style.top = dImgY.toString()+"px";
 	} else {
 		dScrollY = 0;
+		//setDCenterY((dImage.height/2));
 		dImgY = (window.innerHeight/2)-(dImage.height/2);
 		dImage.style.top = dImgY.toString()+"px";
 	}
@@ -64,7 +82,25 @@ function dCenter(){
 	console.log([dImgX,(window.innerWidth/2),(dImage.height/2)]);
 	console.log([dImgY,(window.innerHeight/2),(dImage.height/2)]);
 	*/
-	console.log([window.outerWidth, window.innerWidth]);
+	//console.log([window.outerWidth, window.innerWidth]);
+}
+
+function fitToWindow(){
+	// fit image to window
+	// get the native resolution of the image
+	img_ = new Image();
+	img_.onload = function(){
+		var img_w = this.width,
+		img_h = this.height;
+		// window.innerWidth gives not the real px-width back, if zoomFactor is other than 1.0
+		dZoomWidth = (window.innerWidth*dZoom)/img_w;
+		dZoomHeight = (window.innerHeight*dZoom)/img_h;
+		dZoom = 1.0;
+		dZoom = Math.min(dZoom,dZoomWidth,dZoomHeight);
+		webFrame.setZoomFactor(dZoom);
+		img_ = null;
+	}
+	img_.src = dImage.src;
 }
 
 window.addEventListener ('resize', (evt)=>{
@@ -75,6 +111,26 @@ document.addEventListener ('keydown', (evt) => {
 	switch (evt.key) {
 		// test key: center
 		case "h":
+			dialog.showOpenDialog(function (fileNames) {
+                if(fileNames === undefined){
+                    console.log("No file selected");
+                }else{
+                    //document.getElementById("actual-file").value = fileNames[0];
+                    //readFile(fileNames[0]);
+                    dImage.src = fileNames[0];
+                    //fit to screen
+                }
+            });
+ 
+			// Note that the previous example will handle only 1 file, if you want that the dialog accepts multiple files, then change the settings:
+			// And obviously , loop through the fileNames and read every file manually
+			/*dialog.showOpenDialog({ 
+			    properties: [ 
+			        'openFile', 'multiSelections', (fileNames) => {
+			            console.log(fileNames);
+			        }
+			    ]
+			});*/
 			break;
 		case "j":
 			dZoom = 4.0;
@@ -145,20 +201,7 @@ document.addEventListener ('keydown', (evt) => {
 		case ",":
 		case "c":
 			// fit image to window
-			// get the native resolution of the image
-			img_ = new Image();
-			img_.onload = function(){
-				var img_w = this.width,
-				img_h = this.height;
-				// window.innerWidth gives not the real px-width back, if zoomFactor is other than 1.0
-				dZoomWidth = (window.innerWidth*dZoom)/img_w;
-				dZoomHeight = (window.innerHeight*dZoom)/img_h;
-				dZoom = 1.0;
-				dZoom = Math.min(dZoom,dZoomWidth,dZoomHeight);
-				webFrame.setZoomFactor(dZoom);
-				img_ = null;
-			}
-			img_.src = dImage.src;
+			fitToWindow();
 			break;
 		// fit window to image
 		case "Enter":
@@ -175,6 +218,12 @@ document.addEventListener ('keydown', (evt) => {
 				img_ = null;
 			}
 			img_.src = dImage.src;
+			break;
+		case "ArrowLeft":
+			
+			break;
+		case "ArrowRight":
+			
 			break;
 		default:
 			console.log(evt.key);
