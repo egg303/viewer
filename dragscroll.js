@@ -9,15 +9,19 @@
 var dCenterX = 0;
 var dCenterY = 0;
 function getDCenterX(){
+    console.log("gotDCenterX");
     return dCenterX;
 }
 function getDCenterY(){
+    console.log("gotDCenterY");
     return dCenterY;
 }
 function setDCenterX(dCenterX_){
+    console.log("setDCenterX");
     dCenterX = dCenterX_;
 }
 function setDCenterY(dCenterY_){
+    console.log("setDCenterY");
     dCenterY = dCenterY_;
 }
 
@@ -67,6 +71,8 @@ function setDCenterY(dCenterY_){
                             lastClientX = e.clientX;
                             lastClientY = e.clientY;
 
+                            console.log("mousedown");
+
                             e.preventDefault();
                         }
                     }, 0
@@ -79,20 +85,25 @@ function setDCenterY(dCenterY_){
                             dCenterX = document.documentElement.scrollLeft+window.innerWidth/2;
                         if(getDScrollBarY())
                             dCenterY = document.documentElement.scrollTop+window.innerHeight/2;
+                        console.log("stop moving");
                     }, 0
                 );
 
                 _window[addEventListener](
                     mousemove,
                     cont.mm = function(e) {
+                        console.log("mov1" + pushed);
                         if (pushed) {
+                            console.log("mov2");
                             (scroller = el.scroller||el).scrollLeft -=
                                 newScrollX = (- lastClientX + (lastClientX=e.clientX));
                             scroller.scrollTop -=
                                 newScrollY = (- lastClientY + (lastClientY=e.clientY));
+                                console.log("mov3");
                             if (el == _document.body) {
                                 (scroller = _document.documentElement).scrollLeft -= newScrollX;
                                 scroller.scrollTop -= newScrollY;
+                                console.log("moving");
                             }
                         }
                     }, 0
