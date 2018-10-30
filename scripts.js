@@ -1,6 +1,6 @@
 const {webFrame} = require('electron');
 
-var remote = require('electron'); // Load remote compnent that contains the dialog dependency
+var remote = require('electron'); // Load remote component that contains the dialog dependency
 var fs = require('fs'); // Load the File System to execute our common tasks (CRUD)
 var app = require('electron').remote; 
 var dialog = app.dialog;
@@ -118,6 +118,7 @@ function fitToWindow(){
 	console.log("ftw2 img w*h:"+[dImage.naturalWidth,dImage.naturalHeight]);
 	console.log("Z, Zw, Zh: " + [dZoom,dZoomWidth,dZoomHeight]);
 	dZoom = Math.min(dZoom,dZoomWidth,dZoomHeight);
+	dZoom = dZoom<0.25 ? 0.25 : dZoom;
 	webFrame.setZoomFactor(dZoom);
 	console.log("fitToWindow: Zoom set to : " + dZoom);
 	console.log("Image fitted to window done");
@@ -161,6 +162,15 @@ document.addEventListener ('keydown', (evt) => {
                     //document.getElementById("actual-file").value = fileNames[0];
                     //readFile(fileNames[0]);
                     newImage(fileName[0]);
+
+                    // from https://stackoverflow.com/questions/2727167/how-do-you-get-a-list-of-the-names-of-all-files-present-in-a-directory-in-node-j
+                    const testFolder = './';
+					fs.readdir(testFolder, (err, files) => {
+					  files.sort().forEach(file => {
+					    console.log(file);
+					  });
+					  console.log(files);
+					})
                     //fit to screen
                 }
             });
