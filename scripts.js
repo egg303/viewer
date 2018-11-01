@@ -4,8 +4,10 @@ var remote = require('electron'); // Load remote component that contains the dia
 var fs = require('fs'); // Load the File System to execute our common tasks (CRUD)
 var app = require('electron').remote; 
 var dialog = app.dialog;
+var path = require('path');
 
 let dZoom, dImage, dZoomWidth, dZoomHeight, dScrollBarX, dScrollBarY, dImgX, dImgY;
+let dFileList, dValidExtensions, dI, dDirectory, dImageName;
 // global zoom level
 dZoom = 1.0;
 // the zoom level needed to fit the image horizontally in the window
@@ -18,8 +20,19 @@ dScrollBarY = false;
 // if the image fits in the window, these values tell how far it should be positioned from the top left corner of the viewport
 dImgX = 0;
 dImgY = 0;
+// File List
+dFileList = [];
+// All Extensions this app can show
+dValidExtensions = [".jpg", ".jpeg", ".jpe", ".jif", ".jfif", ".jfi", ".webp", ".png", ".apng", ".gif", ".tif", ".tiff", ".bmp", ".dib", ".ico"];
+// Variable, storing the index of the image viewed
+dI = 0;
+// directory path, eg "C:\Users\TomTom\My Pictures\"
+dDirectory = "";
+// name of the image, eg "universe.png"
+dImageName = "";
 // the image object
 dImage = document.querySelector("#dImg");
+dImageHelper = document.querySelector("#dImgHelper");
 dImage.onload = function(){
 	console.log("Image loaded.");
 	//dZoom = 1.0;
@@ -31,12 +44,13 @@ dImage.onload = function(){
 	setDCenterY(dImage.naturalHeight/2)
 	dCenter();
 	fitToWindow();
-	dImage.hidden = false;
+	setTimeout(function() {dImage.hidden = false;}, 0);
 }
 
 function newImage(path){
 	dImage.hidden = true;
 	dImage.src = path;
+	document.title = path + " - " + dImage.naturalWidth + " x " + dImage.naturalHeight;
 }
 
 
@@ -162,14 +176,31 @@ document.addEventListener ('keydown', (evt) => {
                     //document.getElementById("actual-file").value = fileNames[0];
                     //readFile(fileNames[0]);
                     newImage(fileName[0]);
+                    console.log(fileName[0]);
 
                     // from https://stackoverflow.com/questions/2727167/how-do-you-get-a-list-of-the-names-of-all-files-present-in-a-directory-in-node-j
-                    const testFolder = './';
-					fs.readdir(testFolder, (err, files) => {
-					  files.sort().forEach(file => {
-					    console.log(file);
-					  });
-					  console.log(files);
+                    dDirectory = path.dirname(fileName[0]);
+                    console.log(dDirectory);
+                    dImageName = path.basename(fileName[0]);
+                    console.log(dImageName);
+					fs.readdir(dDirectory, (err, files) => {
+						dFileList = [];
+						console.log(files);
+					  	files.forEach(file => {
+					  		if(fs.statSync(path.join(dDirectory,file)).isFile()){
+					  			console.log("is file: " + file);
+					  			let dExt = path.extname(file);
+					  			console.log(dExt);
+					  			if(dValidExtensions.includes(dExt)){
+					  				dFileList.push(path.join(dDirectory,file));
+					  				console.log(file + " added to list.");
+					  			}
+					  		}
+					  	});
+					  	console.log("All Files: " + files);
+					  	console.log("Only Images: " + dFileList);
+					  	dI = dFileList.indexOf(path.join(dDirectory,dImageName));
+					  	console.log(dFileList.indexOf(path.join(dDirectory,dImageName)));
 					})
                     //fit to screen
                 }
@@ -190,7 +221,8 @@ document.addEventListener ('keydown', (evt) => {
 			webFrame.setZoomFactor(dZoom);
 			break;
 		case "k":
-			console.log("readyState: " + document.readyState);
+			console.log(dFileList);
+			//console.log("readyState: " + document.readyState);
 			//console.log("Center : "+[getDCenterX(),getDCenterY()]);
 			break;
 		case "p":
@@ -281,10 +313,18 @@ document.addEventListener ('keydown', (evt) => {
 			img_.src = dImage.src;
 			break;
 		case "ArrowLeft":
-			
+			dI--;
+			if(dI<0){
+				dI = dFileList.length - 1;
+			}
+			newImage(dFileList[dI]);
 			break;
 		case "ArrowRight":
-			
+			dI++;
+			if(dI == dFileList.length){
+				dI = 0;
+			}
+			newImage(dFileList[dI]);
 			break;
 		default:
 			console.log(evt.key);
