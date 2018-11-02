@@ -7,7 +7,8 @@ var dialog = app.dialog;
 var path = require('path');
 
 let dZoom, dImage, dZoomWidth, dZoomHeight, dScrollBarX, dScrollBarY, dImgX, dImgY;
-let dFileList, dValidExtensions, dI, dDirectory, dImageName;
+let dFileList, dValidExtensionsImg, dValidExtensionsVid, dValidExtensions, dI, dDirectory, dImageName;
+let dVideo;
 // global zoom level
 dZoom = 1.0;
 // the zoom level needed to fit the image horizontally in the window
@@ -23,7 +24,9 @@ dImgY = 0;
 // File List
 dFileList = [];
 // All Extensions this app can show
-dValidExtensions = [".jpg", ".jpeg", ".jpe", ".jif", ".jfif", ".jfi", ".webp", ".png", ".apng", ".gif", ".tif", ".tiff", ".bmp", ".dib", ".ico"];
+dValidExtensionsImg = [".jpg", ".jpeg", ".jpe", ".jif", ".jfif", ".jfi", ".webp", ".png", ".apng", ".gif", ".tif", ".tiff", ".bmp", ".dib", ".ico"];
+dValidExtensionsVid = [".mp4",".webm", ".ogg", ".ogv", ".avi"];
+dValidExtensions = dValidExtensionsImg.concat(dValidExtensionsVid);
 // Variable, storing the index of the image viewed
 dI = 0;
 // directory path, eg "C:\Users\TomTom\My Pictures\"
@@ -32,10 +35,13 @@ dDirectory = "";
 dImageName = "";
 // the image object
 dImage = document.querySelector("#dImg");
-dImageHelper = document.querySelector("#dImgHelper");
+dVideo = document.querySelector('#dVid');
+dVideoSrc = document.querySelector('#dVidSrc');
+
 dImage.onload = function(){
 	console.log("Image loaded.");
 	//dZoom = 1.0;
+	
 	dScrollBarX = false;
 	dScrollBarY = false;
 	dImgX = 0;
@@ -45,24 +51,29 @@ dImage.onload = function(){
 	dCenter();
 	fitToWindow();
 	setTimeout(function() {dImage.hidden = false;}, 0);
+	//dImage.hidden = false;
 }
+
+dVideo.addEventListener( "loadedmetadata", function (e) {
+    dVideo.width = dVideo.videoWidth;
+    dVideo.width = dVideo.width>100 ? dVideo.width : 100;
+    dVideo.height = dVideo.videoHeight;
+    dVideo.height = dVideo.height>100 ? dVideo.height : 100;
+}, false );
+
+dVideo.onmouseenter = function(){
+	dVideo.controls = true;
+};
+
+dVideo.onmouseleave = function(){
+	dVideo.controls = false;
+};
 
 function newImage(path){
 	dImage.hidden = true;
 	dImage.src = path;
 	document.title = path + " - " + dImage.naturalWidth + " x " + dImage.naturalHeight;
 }
-
-
-//console.log(dZoom);
-/*dImgX = (window.innerWidth/2)-(dImage.width/2);
-dImgY = (window.innerHeight/2)-(dImage.height/2);
-dImage.style.left = dImgX;
-dImage.style.top  = dImgY;
-console.log([dImgX,(window.innerWidth/2),(dImage.width/2)]);
-console.log([dImgY,(window.innerHeight/2),(dImage.height/2)]);
-*/
-//console.log(dZoom, window.innerHeight, dImage.height*dZoom,dImage.height);
 
 function getDScrollBarX(){
 	console.log("gotDScrollBarX");
@@ -102,21 +113,10 @@ function dCenter(){
 		dImgY = (window.innerHeight/2)-(dImage.naturalHeight/2);
 		dImage.style.top = dImgY.toString()+"px";
 	}
-	//dScrollX = (dImage.width/2)-((window.innerWidth)/2);
-	//dScrollY = (dImage.height/2)-((window.innerHeight)/2);
 	window.scrollTo(dScrollX,dScrollY);
-	//console.log((dImage.width/2),((window.innerWidth)/2));
-	//console.log("scroll.px "+[dScrollX,dScrollY]);
-	/*dImgX = (window.innerWidth/2)-(dImage.width/2);
-	dImgY = (window.innerHeight/2)-(dImage.height/2);
-	dImage.style.left = dImgX.toString()+"px";
-	dImage.style.top  = dImgY.toString()+"px";
-	console.log([dImgX,(window.innerWidth/2),(dImage.width/2)]);
-	console.log([dImgY,(window.innerHeight/2),(dImage.height/2)]);
-	*/
-	//console.log([window.outerWidth, window.innerWidth]);
 	console.log("Image center done");
 }
+
 
 function fitToWindow(){
 	// fit image to window
@@ -138,30 +138,54 @@ function fitToWindow(){
 	console.log("Image fitted to window done");
 }
 
-/*function fitToWindow(){
-	// fit image to window
-	// get the native resolution of the image
-	console.log("start Image fitted to window.");
+function fitWindowToImage(){
+	/*
 	img_ = new Image();
 	img_.onload = function(){
-		console.log("Image loaded in fitToWindow");
 		var img_w = this.width,
 		img_h = this.height;
 		// window.innerWidth gives not the real px-width back, if zoomFactor is other than 1.0
-		dZoomWidth = (window.innerWidth*dZoom)/img_w;
-		dZoomHeight = (window.innerHeight*dZoom)/img_h;
-		dZoom = 1.0;
-		dZoom = Math.min(dZoom,dZoomWidth,dZoomHeight);
-		webFrame.setZoomFactor(dZoom);
+		if(Math.ceil(img_h*dZoom)+(window.outerHeight-Math.floor(window.innerHeight*dZoom))<1000)
+			window.resizeTo(Math.ceil(img_w*dZoom)+(window.outerWidth-Math.floor(window.innerWidth*dZoom)),Math.ceil(img_h*dZoom)+(window.outerHeight-Math.floor(window.innerHeight*dZoom)));
+		else
+			window.resizeTo(34+Math.ceil(img_w*dZoom)+(window.outerWidth-Math.floor(window.innerWidth*dZoom)),Math.ceil(img_h*dZoom)+(window.outerHeight-Math.floor(window.innerHeight*dZoom)));
+		console.log([window.outerWidth,window.innerWidth,dZoom]);
 		img_ = null;
-		console.log("Image fitted to window.");
 	}
-	img_.src = dImage.src;
-}*/
+	img_.src = dImage.src;*/
+
+	// window.innerWidth gives not the real px-width back, if zoomFactor is other than 1.0
+		if(Math.ceil(dImage.naturalHeight*dZoom)+(window.outerHeight-Math.floor(window.innerHeight*dZoom))<1000)
+			window.resizeTo(Math.ceil(dImage.naturalWidth*dZoom)+(window.outerWidth-Math.floor(window.innerWidth*dZoom)),Math.ceil(dImage.naturalHeight*dZoom)+(window.outerHeight-Math.floor(window.innerHeight*dZoom)));
+		else
+			window.resizeTo(34+Math.ceil(dImage.naturalWidth*dZoom)+(window.outerWidth-Math.floor(window.innerWidth*dZoom)),Math.ceil(dImage.naturalHeight*dZoom)+(window.outerHeight-Math.floor(window.innerHeight*dZoom)));
+		console.log([window.outerWidth,window.innerWidth,dZoom]);
+}
+
+function newVideo(path){
+	dZoom = 1.0;
+	webFrame.setZoomFactor(dZoom);
+	dVideo.src = path;
+	document.title = path;
+
+}
+
+function dChangeContent(dI_){
+	let dExt = path.extname(dFileList[dI_]);
+	if(dValidExtensionsImg.includes(dExt)){
+		dVideo.hidden = true;
+		dVideo.pause();
+		newImage(dFileList[dI_]);
+	} else {
+		dImage.hidden = true;
+		dVideo.hidden = false;
+		newVideo(dFileList[dI_]);
+	}
+}
 
 window.addEventListener ('resize', (evt)=>{
 	console.log("Event: window resize");
-	window.requestAnimationFrame(dCenter);
+	dCenter();
 })
 
 document.addEventListener ('keydown', (evt) => {
@@ -298,33 +322,23 @@ document.addEventListener ('keydown', (evt) => {
 			break;
 		// fit window to image
 		case "Enter":
-			img_ = new Image();
-			img_.onload = function(){
-				var img_w = this.width,
-				img_h = this.height;
-				// window.innerWidth gives not the real px-width back, if zoomFactor is other than 1.0
-				if(Math.ceil(img_h*dZoom)+(window.outerHeight-Math.floor(window.innerHeight*dZoom))<1000)
-					window.resizeTo(Math.ceil(img_w*dZoom)+(window.outerWidth-Math.floor(window.innerWidth*dZoom)),Math.ceil(img_h*dZoom)+(window.outerHeight-Math.floor(window.innerHeight*dZoom)));
-				else
-					window.resizeTo(34+Math.ceil(img_w*dZoom)+(window.outerWidth-Math.floor(window.innerWidth*dZoom)),Math.ceil(img_h*dZoom)+(window.outerHeight-Math.floor(window.innerHeight*dZoom)));
-				console.log([window.outerWidth,window.innerWidth,dZoom]);
-				img_ = null;
-			}
-			img_.src = dImage.src;
+			fitWindowToImage();
 			break;
 		case "ArrowLeft":
 			dI--;
 			if(dI<0){
 				dI = dFileList.length - 1;
 			}
-			newImage(dFileList[dI]);
+			dChangeContent(dI);
+			//newImage(dFileList[dI]);
 			break;
 		case "ArrowRight":
 			dI++;
 			if(dI == dFileList.length){
 				dI = 0;
 			}
-			newImage(dFileList[dI]);
+			dChangeContent(dI);
+			//newImage(dFileList[dI]);
 			break;
 		default:
 			console.log(evt.key);
