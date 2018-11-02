@@ -1,2 +1,2 @@
 # viewer
-dumb image viewer with different zoom levels and correct animated gif timing using electron framework
+dumb image viewer with different zoom levels and correct animated gif timing using the electron framework
