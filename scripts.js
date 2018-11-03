@@ -8,7 +8,7 @@ var path = require('path');
 
 let dZoom, dImage, dZoomWidth, dZoomHeight, dScrollBarX, dScrollBarY, dImgX, dImgY;
 let dFileList, dValidExtensionsImg, dValidExtensionsVid, dValidExtensions, dI, dDirectory, dImageName;
-let dVideo;
+let dVideo,dIsImg, dIsFullscreen, dZoom_;
 // global zoom level
 dZoom = 1.0;
 // the zoom level needed to fit the image horizontally in the window
@@ -33,6 +33,12 @@ dI = 0;
 dDirectory = "";
 // name of the image, eg "universe.png"
 dImageName = "";
+// boolean, is it an image (or video)
+dIsImg = true;
+// boolean, is the video in fullscreen?
+dIsFullscreen = false;
+// save the current zoom for later
+dZoom_ = 1.0;
 // the image object
 dImage = document.querySelector("#dImg");
 dVideo = document.querySelector('#dVid');
@@ -56,15 +62,29 @@ dImage.onload = function(){
 
 dVideo.addEventListener( "loadedmetadata", function (e) {
     dVideo.width = dVideo.videoWidth;
-    dVideo.width = dVideo.width>100 ? dVideo.width : 100;
+    dVideo.width = dVideo.width>380 ? dVideo.width : 380;
     dVideo.height = dVideo.videoHeight;
-    dVideo.height = dVideo.height>100 ? dVideo.height : 100;
+    dVideo.height = dVideo.height>240 ? dVideo.height : 240;
+    dScrollBarX = false;
+	dScrollBarY = false;
+	dImgX = 0;
+	dImgY = 0;
+	setDCenterX(dImage.naturalWidth/2)
+	setDCenterY(dImage.naturalHeight/2)
+	dCenter();
+	fitToWindow();
 }, false );
 
 function newImage(path){
 	dImage.hidden = true;
 	dImage.src = path;
 	document.title = path + " - " + dImage.naturalWidth + " x " + dImage.naturalHeight;
+	if(dIsFullscreen){
+		if (dVideo.webkitExitFullscreen) {
+			dVideo.webkitExitFullscreen();
+			dIsFullscreen = false;
+		}
+	}
 }
 
 function getDScrollBarX(){
@@ -77,57 +97,98 @@ function getDScrollBarY(){
 }
 
 function dCenter(){
-	console.log("Image center start");
-	dScrollBarX = dImage.scrollWidth+dImgX>document.documentElement.clientWidth ? true : false;
-	dScrollBarY = dImage.scrollHeight+dImgY>document.documentElement.clientHeight ? true : false;
-	dImage.style.left = "0px";
-	if(dScrollBarX){
-		dScrollX = getDCenterX()-((window.innerWidth)/2);
-		//dImage.style.left = "0px";
-		dImgX = ((window.innerWidth)/2)-(dImage.naturalWidth/2);
-		if(dImgX<0) dImgX = 0;
-		dImage.style.left = dImgX.toString()+"px";
+	if(dIsImg){
+		console.log("Image center start");
+		dScrollBarX = dImage.scrollWidth+dImgX>document.documentElement.clientWidth ? true : false;
+		dScrollBarY = dImage.scrollHeight+dImgY>document.documentElement.clientHeight ? true : false;
+		dImage.style.left = "0px";
+		if(dScrollBarX){
+			dScrollX = getDCenterX()-((window.innerWidth)/2);
+			//dImage.style.left = "0px";
+			dImgX = ((window.innerWidth)/2)-(dImage.naturalWidth/2);
+			if(dImgX<0) dImgX = 0;
+			dImage.style.left = dImgX.toString()+"px";
+		} else {
+			dScrollX = 0;
+			//setDCenterX((dImage.naturalWidth/2));
+			dImgX = ((window.innerWidth)/2)-(dImage.naturalWidth/2);
+			dImage.style.left = dImgX.toString()+"px";
+		}
+		if(dScrollBarY){
+			dScrollY = getDCenterY()-((window.innerHeight)/2);
+			//dImage.style.top = "0px";
+			dImgY = (window.innerHeight/2)-(dImage.naturalHeight/2);
+			if(dImgY<0) dImgY=0;
+			dImage.style.top = dImgY.toString()+"px";
+		} else {
+			dScrollY = 0;
+			//setDCenterY((dImage.naturalHeight/2));
+			dImgY = (window.innerHeight/2)-(dImage.naturalHeight/2);
+			dImage.style.top = dImgY.toString()+"px";
+		}
+		window.scrollTo(dScrollX,dScrollY);
+		console.log("Image center done");
 	} else {
-		dScrollX = 0;
-		//setDCenterX((dImage.naturalWidth/2));
-		dImgX = ((window.innerWidth)/2)-(dImage.naturalWidth/2);
-		dImage.style.left = dImgX.toString()+"px";
+		console.log("Video center start");
+		dScrollBarX = dVideo.scrollWidth+dImgX>document.documentElement.clientWidth ? true : false;
+		dScrollBarY = dVideo.scrollHeight+dImgY>document.documentElement.clientHeight ? true : false;
+		dVideo.style.left = "0px";
+		if(dScrollBarX){
+			dScrollX = getDCenterX()-((window.innerWidth)/2);
+			//dVideo.style.left = "0px";
+			dImgX = ((window.innerWidth)/2)-(dVideo.width/2);
+			if(dImgX<0) dImgX = 0;
+			dVideo.style.left = dImgX.toString()+"px";
+		} else {
+			dScrollX = 0;
+			//setDCenterX((dVideo.naturalWidth/2));
+			dImgX = ((window.innerWidth)/2)-(dVideo.width/2);
+			dVideo.style.left = dImgX.toString()+"px";
+		}
+		if(dScrollBarY){
+			dScrollY = getDCenterY()-((window.innerHeight)/2);
+			//dVideo.style.top = "0px";
+			dImgY = (window.innerHeight/2)-(dVideo.height/2);
+			if(dImgY<0) dImgY=0;
+			dVideo.style.top = dImgY.toString()+"px";
+		} else {
+			dScrollY = 0;
+			//setDCenterY((dVideo.naturalHeight/2));
+			dImgY = (window.innerHeight/2)-(dVideo.height/2);
+			dVideo.style.top = dImgY.toString()+"px";
+		}
+		window.scrollTo(dScrollX,dScrollY);
+		console.log("Video center done");
 	}
-	if(dScrollBarY){
-		dScrollY = getDCenterY()-((window.innerHeight)/2);
-		//dImage.style.top = "0px";
-		dImgY = (window.innerHeight/2)-(dImage.naturalHeight/2);
-		if(dImgY<0) dImgY=0;
-		dImage.style.top = dImgY.toString()+"px";
-	} else {
-		dScrollY = 0;
-		//setDCenterY((dImage.naturalHeight/2));
-		dImgY = (window.innerHeight/2)-(dImage.naturalHeight/2);
-		dImage.style.top = dImgY.toString()+"px";
-	}
-	window.scrollTo(dScrollX,dScrollY);
-	console.log("Image center done");
 }
 
 
 function fitToWindow(){
 	// fit image to window
 	// get the native resolution of the image
-	console.log("Image fitted to window start");
-	// window.innerWidth gives not the real px-width back, if zoomFactor is other than 1.0
-	console.log("ftw1 img w*h:"+[dImage.naturalWidth,dImage.naturalHeight]);
-	dZoomWidth = (window.innerWidth*dZoom)/dImage.naturalWidth;
-	console.log("dZoomWidth: " + dZoomWidth + " = (" + window.innerWidth + "*" + dZoom + ")/" + dImage.naturalWidth);
-	dZoomHeight = (window.innerHeight*dZoom)/dImage.naturalHeight;
-	console.log("dZoomHeight: " + dZoomHeight + " = (" + window.innerHeight + "*" + dZoom + ")/" + dImage.naturalHeight);
-	dZoom = 1.0;
-	console.log("ftw2 img w*h:"+[dImage.naturalWidth,dImage.naturalHeight]);
-	console.log("Z, Zw, Zh: " + [dZoom,dZoomWidth,dZoomHeight]);
-	dZoom = Math.min(dZoom,dZoomWidth,dZoomHeight);
-	dZoom = dZoom<0.25 ? 0.25 : dZoom;
-	webFrame.setZoomFactor(dZoom);
-	console.log("fitToWindow: Zoom set to : " + dZoom);
-	console.log("Image fitted to window done");
+	if(dIsImg){
+		console.log("Image fit to window start");
+		// window.innerWidth gives not the real px-width back, if zoomFactor is other than 1.0
+		dZoomWidth = (window.innerWidth*dZoom)/dImage.naturalWidth;
+		dZoomHeight = (window.innerHeight*dZoom)/dImage.naturalHeight;
+		dZoom = 1.0;
+		dZoom = Math.min(dZoom,dZoomWidth,dZoomHeight);
+		dZoom = dZoom<0.25 ? 0.25 : dZoom;
+		webFrame.setZoomFactor(dZoom);
+		console.log("fitToWindow: Zoom set to : " + dZoom);
+		console.log("Image fit to window done");
+	} else {
+		console.log("Video fit to window start");
+		// window.innerWidth gives not the real px-width back, if zoomFactor is other than 1.0
+		dZoomWidth = (window.innerWidth*dZoom)/dVideo.width;
+		dZoomHeight = (window.innerHeight*dZoom)/dVideo.height;
+		dZoom = 5.0;
+		dZoom = Math.min(dZoom,dZoomWidth,dZoomHeight);
+		dZoom = dZoom<0.25 ? 0.25 : dZoom;
+		webFrame.setZoomFactor(dZoom);
+		console.log("fitToWindow: Zoom set to : " + dZoom);
+		console.log("Video fit to window done");
+	}
 }
 
 function fitWindowToImage(){
@@ -159,19 +220,46 @@ function newVideo(path){
 	webFrame.setZoomFactor(dZoom);
 	dVideo.src = path;
 	document.title = path;
-
 }
+
+dVideo.addEventListener('click', function(){
+	if(dVideo.paused === true)
+		dVideo.play();
+	else
+		dVideo.pause();
+});
 
 function dChangeContent(dI_){
 	let dExt = path.extname(dFileList[dI_]);
 	if(dValidExtensionsImg.includes(dExt)){
 		dVideo.hidden = true;
 		dVideo.pause();
+		dIsImg = true;
 		newImage(dFileList[dI_]);
 	} else {
 		dImage.hidden = true;
 		dVideo.hidden = false;
+		dIsImg = false;
 		newVideo(dFileList[dI_]);
+	}
+}
+
+function dToggleFullscreen(){
+	if(dIsFullscreen){
+		if (dVideo.webkitExitFullscreen) {
+			dVideo.webkitExitFullscreen();
+			dIsFullscreen = false;
+			dZoom = dZoom_;
+			webFrame.setZoomFactor(dZoom);
+		}
+	} else {
+		if (dVideo.webkitRequestFullscreen) {
+			dVideo.webkitRequestFullscreen();
+			dIsFullscreen = true;
+			dZoom_ = dZoom;
+			dZoom = 1.0;
+			webFrame.setZoomFactor(dZoom);
+		}
 	}
 }
 
@@ -237,7 +325,9 @@ document.addEventListener ('keydown', (evt) => {
 			webFrame.setZoomFactor(dZoom);
 			break;
 		case "k":
-			console.log(dFileList);
+			dVideo.width++;
+			console.log(dVideo.width);
+			//console.log(dFileList);
 			//console.log("readyState: " + document.readyState);
 			//console.log("Center : "+[getDCenterX(),getDCenterY()]);
 			break;
@@ -249,7 +339,6 @@ document.addEventListener ('keydown', (evt) => {
 		// zoom in
 		case "+":
 		case "6":
-		case "d":
 			dZoom *= 1.40;
 			if(dZoom>5)
 				dZoom = 5.0;
@@ -259,7 +348,6 @@ document.addEventListener ('keydown', (evt) => {
 		// zoom out
 		case "-":
 		case "9":
-		case "e":
 			dZoom /= 1.40;
 			if(dZoom<0.25)
 				dZoom = 0.25;
@@ -270,51 +358,55 @@ document.addEventListener ('keydown', (evt) => {
 		case " ":
 			evt.preventDefault();
 			evt.stopPropagation();
+			if(dIsImg === false){
+				if(dVideo.paused === true)
+					dVideo.play();
+				else
+					dVideo.pause();
+			}
+			break;
 		case "0":
 			dZoom = 1.0;
 			webFrame.setZoomFactor(dZoom);
 			break;
 		// zoom levels
 		case "1":
-		case "y":
 			dZoom = 1.9938;
 			//dZoom = 1.7242;
 			webFrame.setZoomFactor(dZoom);
 			break;
 		case "4":
-		case "a":
 			dZoom = 3.3271;
 			webFrame.setZoomFactor(dZoom);
 			break;
 		case "7":
-		case "q":
 			dZoom = 5.0;
 			webFrame.setZoomFactor(dZoom);
 			break;
 		case "2":
-		case "x":
 			dZoom = 0.6944;
 			webFrame.setZoomFactor(dZoom);
 			break;
 		case "5":
-		case "s":
 			dZoom = 0.4444;
 			webFrame.setZoomFactor(dZoom);
 			break;
 		case "8":
-		case "w":
 			dZoom = 0.250;
 			webFrame.setZoomFactor(dZoom);
 			break;
 		// set zoom so image fits window
 		case ",":
-		case "c":
 			// fit image to window
 			fitToWindow();
 			break;
 		// fit window to image
 		case "Enter":
-			fitWindowToImage();
+			if(evt.altKey){
+				dToggleFullscreen();
+			} else {
+				fitWindowToImage();
+			}
 			break;
 		case "ArrowLeft":
 			dI--;
@@ -337,3 +429,5 @@ document.addEventListener ('keydown', (evt) => {
 			break;
 	}
 })
+
+//make images fullscreenable

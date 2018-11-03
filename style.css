@@ -14,12 +14,7 @@ img{
     margin: auto;
 }*/
 video{
-    position: absolute;  
-    top: 0;  
-    bottom: 0;  
-    left: 0;  
-    right: 0;  
-    margin: auto;
+    position: absolute;
 }
 div{
 	position: absolute;  
@@ -30,4 +25,31 @@ div{
     margin: auto;
     width: 98%;
     height: 98%;
+}
+video::-webkit-media-controls-enclosure {
+	height: 28px;
+}
+video::-webkit-media-controls-panel {
+	
+	/*margin-top: 20px;*/
+	height: 28px;
+	background: #000000e0;
+}
+
+audio::-webkit-media-controls-current-time-display,
+video::-webkit-media-controls-current-time-display,
+audio::-webkit-media-controls-time-remaining-display,
+video::-webkit-media-controls-time-remaining-display {
+  opacity: 1;
+  font-family: Roboto Medium, sans-serif;
+  font-size: 15px;
+  padding: 2px 0px 0px 5px;
+}
+audio::-webkit-media-controls-timeline,
+video::-webkit-media-controls-timeline {
+}
+audio::-webkit-media-controls-volume-slider,
+video::-webkit-media-controls-volume-slider {
+}
+video::-webkit-media-controls-fullscreen-button {
 }
