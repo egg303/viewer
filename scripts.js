@@ -61,14 +61,6 @@ dVideo.addEventListener( "loadedmetadata", function (e) {
     dVideo.height = dVideo.height>100 ? dVideo.height : 100;
 }, false );
 
-dVideo.onmouseenter = function(){
-	dVideo.controls = true;
-};
-
-dVideo.onmouseleave = function(){
-	dVideo.controls = false;
-};
-
 function newImage(path){
 	dImage.hidden = true;
 	dImage.src = path;
