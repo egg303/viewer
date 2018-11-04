@@ -8,7 +8,7 @@ var path = require('path');
 
 let dZoom, dImage, dZoomWidth, dZoomHeight, dScrollBarX, dScrollBarY, dImgX, dImgY;
 let dFileList, dValidExtensionsImg, dValidExtensionsVid, dValidExtensions, dI, dDirectory, dImageName;
-let dVideo,dIsImg, dIsFullscreen, dZoom_;
+let dVideo,dIsImg, dIsFullscreen, dZoom_, dZoomArray;
 // global zoom level
 dZoom = 1.0;
 // the zoom level needed to fit the image horizontally in the window
@@ -39,6 +39,8 @@ dIsImg = true;
 dIsFullscreen = false;
 // save the current zoom for later
 dZoom_ = 1.0;
+// array containing the "curated" zoom levels
+dZoomArray = [0.25,0.333,0.5,0.667,1.0,1.5,2.0,3.0,4.0,5.0];
 // the image object
 dImage = document.querySelector("#dImg");
 dVideo = document.querySelector('#dVid');
@@ -192,27 +194,73 @@ function fitToWindow(){
 }
 
 function fitWindowToImage(){
-	/*
-	img_ = new Image();
-	img_.onload = function(){
-		var img_w = this.width,
-		img_h = this.height;
-		// window.innerWidth gives not the real px-width back, if zoomFactor is other than 1.0
-		if(Math.ceil(img_h*dZoom)+(window.outerHeight-Math.floor(window.innerHeight*dZoom))<1000)
-			window.resizeTo(Math.ceil(img_w*dZoom)+(window.outerWidth-Math.floor(window.innerWidth*dZoom)),Math.ceil(img_h*dZoom)+(window.outerHeight-Math.floor(window.innerHeight*dZoom)));
-		else
-			window.resizeTo(34+Math.ceil(img_w*dZoom)+(window.outerWidth-Math.floor(window.innerWidth*dZoom)),Math.ceil(img_h*dZoom)+(window.outerHeight-Math.floor(window.innerHeight*dZoom)));
-		console.log([window.outerWidth,window.innerWidth,dZoom]);
-		img_ = null;
-	}
-	img_.src = dImage.src;*/
-
 	// window.innerWidth gives not the real px-width back, if zoomFactor is other than 1.0
-		if(Math.ceil(dImage.naturalHeight*dZoom)+(window.outerHeight-Math.floor(window.innerHeight*dZoom))<1000)
-			window.resizeTo(Math.ceil(dImage.naturalWidth*dZoom)+(window.outerWidth-Math.floor(window.innerWidth*dZoom)),Math.ceil(dImage.naturalHeight*dZoom)+(window.outerHeight-Math.floor(window.innerHeight*dZoom)));
-		else
-			window.resizeTo(34+Math.ceil(dImage.naturalWidth*dZoom)+(window.outerWidth-Math.floor(window.innerWidth*dZoom)),Math.ceil(dImage.naturalHeight*dZoom)+(window.outerHeight-Math.floor(window.innerHeight*dZoom)));
-		console.log([window.outerWidth,window.innerWidth,dZoom]);
+	if(Math.ceil(dImage.naturalHeight*dZoom)+(window.outerHeight-Math.floor(window.innerHeight*dZoom))<1000)
+		window.resizeTo(Math.ceil(dImage.naturalWidth*dZoom)+(window.outerWidth-Math.floor(window.innerWidth*dZoom)),Math.ceil(dImage.naturalHeight*dZoom)+(window.outerHeight-Math.floor(window.innerHeight*dZoom)));
+	else
+		window.resizeTo(34+Math.ceil(dImage.naturalWidth*dZoom)+(window.outerWidth-Math.floor(window.innerWidth*dZoom)),Math.ceil(dImage.naturalHeight*dZoom)+(window.outerHeight-Math.floor(window.innerHeight*dZoom)));
+	console.log([window.outerWidth,window.innerWidth,dZoom]);
+}
+
+function dZoomIn(){
+	if(dZoom >= dZoomArray[dZoomArray.length-1])
+		return;
+	var dZAI = 0;
+	for(var i = 0; i < dZoomArray.length;i++){
+		if(dZoomArray[i] < dZoom){
+			dZAI = i;
+		}
+	}
+	if(dZAI>dZoomArray.length-2){
+		return;
+	}
+	var ratioToTop = dZoomArray[dZAI+1]/dZoom;
+	var ratioToBot = dZoom/dZoomArray[dZAI];
+	if(ratioToTop<ratioToBot){
+		if(ratioToTop>1.1){
+			dZAI++;
+		} else {
+			dZAI = dZAI+2;
+		}
+	} else {
+			dZAI++;
+	}
+	if(dZAI>dZoomArray.length-1){
+		dZAI = dZoomArray.length-1;
+	}
+	dSetZoom(dZoomArray[dZAI]);
+}
+
+function dZoomOut(){
+	if(dZoom <= dZoomArray[0])
+		return;
+	var dZAI = 0;
+	for(var i = 0; i < dZoomArray.length;i++){
+		if(dZoomArray[i] < dZoom){
+			dZAI = i;
+		}
+	}
+	if(dZAI>dZoomArray.length-2){
+		dSetZoom(dZoomArray[dZAI-1]);
+		return;
+	}
+	var ratioToTop = dZoomArray[dZAI+1]/dZoom;
+	var ratioToBot = dZoom/dZoomArray[dZAI];
+	if(ratioToTop>ratioToBot){
+		if(ratioToBot<1.1){
+			dZAI--;
+		}
+	}
+	if(dZAI<0){
+		dZAI = 0;
+	}
+	dSetZoom(dZoomArray[dZAI]);
+}
+
+function dSetZoom(dZoom_){
+	dZoom = dZoom_;
+	webFrame.setZoomFactor(dZoom);
+	console.log("Set Zoom to: " + dZoom);
 }
 
 function newVideo(path){
@@ -321,38 +369,21 @@ document.addEventListener ('keydown', (evt) => {
 			});*/
 			break;
 		case "j":
-			dZoom = 4.0;
-			webFrame.setZoomFactor(dZoom);
+			console.log(dZoomArray);
 			break;
 		case "k":
-			dVideo.width++;
-			console.log(dVideo.width);
-			//console.log(dFileList);
-			//console.log("readyState: " + document.readyState);
-			//console.log("Center : "+[getDCenterX(),getDCenterY()]);
+			dSetZoom(0.248);
 			break;
 		case "p":
-			console.log("img w*h:"+[dImage.width,dImage.height]);
-			console.log("img natural w*h:"+[dImage.naturalWidth,dImage.naturalHeight]);
-			console.log("img w*h:"+[window.innerWidth,window.innerHeight]);
+			dSetZoom(0.252);
 			break;
 		// zoom in
 		case "+":
-		case "6":
-			dZoom *= 1.40;
-			if(dZoom>5)
-				dZoom = 5.0;
-			webFrame.setZoomFactor(dZoom);
-			console.log(dZoom);
+			dZoomIn();
 			break;
 		// zoom out
 		case "-":
-		case "9":
-			dZoom /= 1.40;
-			if(dZoom<0.25)
-				dZoom = 0.25;
-			webFrame.setZoomFactor(dZoom);
-			console.log(dZoom);
+			dZoomOut();
 			break;
 		// set zoom to 1 / view image in native resolution
 		case " ":
@@ -366,34 +397,22 @@ document.addEventListener ('keydown', (evt) => {
 			}
 			break;
 		case "0":
-			dZoom = 1.0;
-			webFrame.setZoomFactor(dZoom);
 			break;
 		// zoom levels
 		case "1":
-			dZoom = 1.9938;
-			//dZoom = 1.7242;
-			webFrame.setZoomFactor(dZoom);
-			break;
-		case "4":
-			dZoom = 3.3271;
-			webFrame.setZoomFactor(dZoom);
-			break;
-		case "7":
-			dZoom = 5.0;
-			webFrame.setZoomFactor(dZoom);
+			dSetZoom(1.0);
 			break;
 		case "2":
-			dZoom = 0.6944;
-			webFrame.setZoomFactor(dZoom);
+			dSetZoom(2.0);
+			break;
+		case "3":
+			dSetZoom(3.0);
+			break;
+		case "4":
+			dSetZoom(4.0);
 			break;
 		case "5":
-			dZoom = 0.4444;
-			webFrame.setZoomFactor(dZoom);
-			break;
-		case "8":
-			dZoom = 0.250;
-			webFrame.setZoomFactor(dZoom);
+			dSetZoom(5.0);
 			break;
 		// set zoom so image fits window
 		case ",":
