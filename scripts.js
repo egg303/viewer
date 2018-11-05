@@ -258,7 +258,8 @@ function dZoomOut(){
 }
 
 function dSetZoom(dZoom_){
-	dZoom = dZoom_;
+	// clamp to min, max zoom
+	dZoom = Math.min(5.0, Math.max(dZoom_, 0.25));
 	webFrame.setZoomFactor(dZoom);
 	console.log("Set Zoom to: " + dZoom);
 }
@@ -392,11 +393,19 @@ document.addEventListener ('keydown', (evt) => {
 			break;
 		// zoom in
 		case "+":
-			dZoomIn();
+			if(evt.ctrlKey){
+				dSetZoom(dZoom*1.03);
+			} else{
+				dZoomIn();
+			}
 			break;
 		// zoom out
 		case "-":
-			dZoomOut();
+			if(evt.ctrlKey){
+				dSetZoom(dZoom/1.03);
+			} else{
+				dZoomOut();
+			}
 			break;
 		// set zoom to 1 / view image in native resolution
 		case " ":
@@ -416,16 +425,32 @@ document.addEventListener ('keydown', (evt) => {
 			dSetZoom(1.0);
 			break;
 		case "2":
-			dSetZoom(2.0);
+			if(evt.ctrlKey){
+				dSetZoom(0.667);
+			} else{
+				dSetZoom(2.0);
+			}
 			break;
 		case "3":
-			dSetZoom(3.0);
+			if(evt.ctrlKey){
+				dSetZoom(0.5);
+			} else{
+				dSetZoom(3.0);
+			}
 			break;
 		case "4":
-			dSetZoom(4.0);
+			if(evt.ctrlKey){
+				dSetZoom(0.333);
+			} else{
+				dSetZoom(4.0);
+			}
 			break;
 		case "5":
-			dSetZoom(5.0);
+			if(evt.ctrlKey){
+				dSetZoom(0.25);
+			} else{
+				dSetZoom(5.0);
+			}
 			break;
 		// set zoom so image fits window
 		case ",":

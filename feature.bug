@@ -1,14 +1,19 @@
 //JPG, PNG,... is not recognized, but jpg, png,... is
 //	toLowercase
 
-dWindowToImage doesnt work with videos yet
+dWindowToImage() doesnt work with videos yet
 
 //replace forEach with for loops
 
-"shift" + "+", "shift" + "-"" for smaller zoom in-/decrements
+//"shift" + "+", "shift" + "-"" for smaller zoom in-/decrements
+//switching to ctrl
 
-shift + 1,2,3,... for zoom out
+//shift + 1,2,3,... for zoom out
+//well, that doesnt work on keypad, switching to ctrl
+//ctrl + 1,2,3,... for zoom out
 
 package for resizing JPEG, PNG and WebP
 As well as image resizing, operations such as rotation, extraction, compositing and gamma correction are available.
 https://www.npmjs.com/package/sharp
+
+tiff is not supported
