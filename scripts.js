@@ -278,7 +278,7 @@ dVideo.addEventListener('click', function(){
 });
 
 function dChangeContent(dI_){
-	let dExt = path.extname(dFileList[dI_]);
+	let dExt = path.extname(dFileList[dI_]).toLowerCase();
 	if(dValidExtensionsImg.includes(dExt)){
 		dVideo.hidden = true;
 		dVideo.pause();
@@ -338,17 +338,30 @@ document.addEventListener ('keydown', (evt) => {
 					fs.readdir(dDirectory, (err, files) => {
 						dFileList = [];
 						console.log(files);
-					  	files.forEach(file => {
-					  		if(fs.statSync(path.join(dDirectory,file)).isFile()){
+						// the for loop is notably faster than the .forEach function
+						for(var i = 0; i<files.length;i++){
+							var file = files[i];
+							if(fs.statSync(path.join(dDirectory,file)).isFile()){
 					  			console.log("is file: " + file);
-					  			let dExt = path.extname(file);
+					  			let dExt = path.extname(file).toLowerCase();
 					  			console.log(dExt);
 					  			if(dValidExtensions.includes(dExt)){
 					  				dFileList.push(path.join(dDirectory,file));
 					  				console.log(file + " added to list.");
 					  			}
 					  		}
-					  	});
+						}
+					  	/*files.forEach(file => {
+					  		if(fs.statSync(path.join(dDirectory,file)).isFile()){
+					  			console.log("is file: " + file);
+					  			let dExt = path.extname(file).toLowerCase();
+					  			console.log(dExt);
+					  			if(dValidExtensions.includes(dExt)){
+					  				dFileList.push(path.join(dDirectory,file));
+					  				console.log(file + " added to list.");
+					  			}
+					  		}
+					  	});*/
 					  	console.log("All Files: " + files);
 					  	console.log("Only Images: " + dFileList);
 					  	dI = dFileList.indexOf(path.join(dDirectory,dImageName));
@@ -369,7 +382,7 @@ document.addEventListener ('keydown', (evt) => {
 			});*/
 			break;
 		case "j":
-			console.log(dZoomArray);
+			console.log(dFileList);
 			break;
 		case "k":
 			dSetZoom(0.248);
