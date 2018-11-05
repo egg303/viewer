@@ -24,7 +24,7 @@ dImgY = 0;
 // File List
 dFileList = [];
 // All Extensions this app can show
-dValidExtensionsImg = [".jpg", ".jpeg", ".jpe", ".jif", ".jfif", ".jfi", ".webp", ".png", ".apng", ".gif", ".tif", ".tiff", ".bmp", ".dib", ".ico"];
+dValidExtensionsImg = [".jpg", ".jpeg", ".jpe", ".jif", ".jfif", ".jfi", ".webp", ".png", ".apng", ".gif", ".bmp", ".dib", ".ico"];
 dValidExtensionsVid = [".mp4",".webm", ".ogg", ".ogv", ".avi"];
 dValidExtensions = dValidExtensionsImg.concat(dValidExtensionsVid);
 // Variable, storing the index of the image viewed
@@ -63,16 +63,15 @@ dImage.onload = function(){
 }
 
 dVideo.addEventListener( "loadedmetadata", function (e) {
-    dVideo.width = dVideo.videoWidth;
-    dVideo.width = dVideo.width>380 ? dVideo.width : 380;
-    dVideo.height = dVideo.videoHeight;
-    dVideo.height = dVideo.height>240 ? dVideo.height : 240;
+	console.log("Video loaded.");
+    dVideo.width = dVideo.videoWidth>380 ? dVideo.videoWidth : 380;
+    dVideo.height = dVideo.videoHeight>240 ? dVideo.videoHeight : 240;
     dScrollBarX = false;
 	dScrollBarY = false;
 	dImgX = 0;
 	dImgY = 0;
-	setDCenterX(dImage.naturalWidth/2)
-	setDCenterY(dImage.naturalHeight/2)
+	setDCenterX(dVideo.width/2)
+	setDCenterY(dVideo.height/2)
 	dCenter();
 	fitToWindow();
 }, false );
@@ -194,12 +193,21 @@ function fitToWindow(){
 }
 
 function fitWindowToImage(){
-	// window.innerWidth gives not the real px-width back, if zoomFactor is other than 1.0
-	if(Math.ceil(dImage.naturalHeight*dZoom)+(window.outerHeight-Math.floor(window.innerHeight*dZoom))<1000)
-		window.resizeTo(Math.ceil(dImage.naturalWidth*dZoom)+(window.outerWidth-Math.floor(window.innerWidth*dZoom)),Math.ceil(dImage.naturalHeight*dZoom)+(window.outerHeight-Math.floor(window.innerHeight*dZoom)));
-	else
-		window.resizeTo(34+Math.ceil(dImage.naturalWidth*dZoom)+(window.outerWidth-Math.floor(window.innerWidth*dZoom)),Math.ceil(dImage.naturalHeight*dZoom)+(window.outerHeight-Math.floor(window.innerHeight*dZoom)));
-	console.log([window.outerWidth,window.innerWidth,dZoom]);
+	if(dIsImg){
+		// window.innerWidth gives not the real px-width back, if zoomFactor is other than 1.0
+		if(Math.ceil(dImage.naturalHeight*dZoom)+(window.outerHeight-Math.floor(window.innerHeight*dZoom))<1000)
+			window.resizeTo(Math.ceil(dImage.naturalWidth*dZoom)+(window.outerWidth-Math.floor(window.innerWidth*dZoom)),Math.ceil(dImage.naturalHeight*dZoom)+(window.outerHeight-Math.floor(window.innerHeight*dZoom)));
+		else
+			window.resizeTo(34+Math.ceil(dImage.naturalWidth*dZoom)+(window.outerWidth-Math.floor(window.innerWidth*dZoom)),Math.ceil(dImage.naturalHeight*dZoom)+(window.outerHeight-Math.floor(window.innerHeight*dZoom)));
+		console.log([window.outerWidth,window.innerWidth,dZoom]);
+	} else {
+		// window.innerWidth gives not the real px-width back, if zoomFactor is other than 1.0
+		if(Math.ceil(dVideo.height*dZoom)+(window.outerHeight-Math.floor(window.innerHeight*dZoom))<1000)
+			window.resizeTo(Math.ceil(dVideo.width*dZoom)+(window.outerWidth-Math.floor(window.innerWidth*dZoom)),Math.ceil(dVideo.height*dZoom)+(window.outerHeight-Math.floor(window.innerHeight*dZoom)));
+		else
+			window.resizeTo(34+Math.ceil(dVideo.width*dZoom)+(window.outerWidth-Math.floor(window.innerWidth*dZoom)),Math.ceil(dVideo.height*dZoom)+(window.outerHeight-Math.floor(window.innerHeight*dZoom)));
+		console.log([window.outerWidth,window.innerWidth,dZoom]);
+	}
 }
 
 function dZoomIn(){
@@ -486,5 +494,3 @@ document.addEventListener ('keydown', (evt) => {
 			break;
 	}
 })
-
-//make images fullscreenable

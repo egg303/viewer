@@ -1,7 +1,7 @@
 //JPG, PNG,... is not recognized, but jpg, png,... is
 //	toLowercase
 
-dWindowToImage() doesnt work with videos yet
+//dWindowToImage() doesnt work with videos yet
 
 //replace forEach with for loops
 
@@ -17,3 +17,5 @@ As well as image resizing, operations such as rotation, extraction, compositing 
 https://www.npmjs.com/package/sharp
 
 tiff is not supported
+
+images not fullscreenable
