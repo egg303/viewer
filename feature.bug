@@ -19,3 +19,6 @@ https://www.npmjs.com/package/sharp
 tiff is not supported
 
 images not fullscreenable
+
+https://github.com/ccampbell/mousetrap
+Mousetrap is a simple library for handling keyboard shortcuts in Javascript.

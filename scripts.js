@@ -8,7 +8,7 @@ var path = require('path');
 
 let dZoom, dImage, dZoomWidth, dZoomHeight, dScrollBarX, dScrollBarY, dImgX, dImgY;
 let dFileList, dValidExtensionsImg, dValidExtensionsVid, dValidExtensions, dI, dDirectory, dImageName;
-let dVideo,dIsImg, dIsFullscreen, dZoom_, dZoomArray;
+let dVideo,dIsImg, dIsFullscreen, dZoomPre, dZoomArray;
 // global zoom level
 dZoom = 1.0;
 // the zoom level needed to fit the image horizontally in the window
@@ -25,7 +25,7 @@ dImgY = 0;
 dFileList = [];
 // All Extensions this app can show
 dValidExtensionsImg = [".jpg", ".jpeg", ".jpe", ".jif", ".jfif", ".jfi", ".webp", ".png", ".apng", ".gif", ".bmp", ".dib", ".ico"];
-dValidExtensionsVid = [".mp4",".webm", ".ogg", ".ogv", ".avi"];
+dValidExtensionsVid = [".mp4",".webm", ".ogg", ".ogv"];
 dValidExtensions = dValidExtensionsImg.concat(dValidExtensionsVid);
 // Variable, storing the index of the image viewed
 dI = 0;
@@ -38,7 +38,7 @@ dIsImg = true;
 // boolean, is the video in fullscreen?
 dIsFullscreen = false;
 // save the current zoom for later
-dZoom_ = 1.0;
+dZoomPre = 1.0;
 // array containing the "curated" zoom levels
 dZoomArray = [0.25,0.333,0.5,0.667,1.0,1.5,2.0,3.0,4.0,5.0];
 // the image object
@@ -84,6 +84,7 @@ function newImage(path){
 		if (dVideo.webkitExitFullscreen) {
 			dVideo.webkitExitFullscreen();
 			dIsFullscreen = false;
+			dZoomPre = 1.0;
 		}
 	}
 }
@@ -302,20 +303,22 @@ function dChangeContent(dI_){
 }
 
 function dToggleFullscreen(){
-	if(dIsFullscreen){
-		if (dVideo.webkitExitFullscreen) {
-			dVideo.webkitExitFullscreen();
-			dIsFullscreen = false;
-			dZoom = dZoom_;
-			webFrame.setZoomFactor(dZoom);
-		}
-	} else {
-		if (dVideo.webkitRequestFullscreen) {
-			dVideo.webkitRequestFullscreen();
-			dIsFullscreen = true;
-			dZoom_ = dZoom;
-			dZoom = 1.0;
-			webFrame.setZoomFactor(dZoom);
+	if(!dIsImg){
+		if(dIsFullscreen){
+			if (dVideo.webkitExitFullscreen) {
+				dVideo.webkitExitFullscreen();
+				dIsFullscreen = false;
+				dZoom = dZoomPre;
+				webFrame.setZoomFactor(dZoom);
+			}
+		} else {
+			if (dVideo.webkitRequestFullscreen) {
+				dVideo.webkitRequestFullscreen();
+				dIsFullscreen = true;
+				dZoomPre = dZoom;
+				dZoom = 1.0;
+				webFrame.setZoomFactor(dZoom);
+			}
 		}
 	}
 }
@@ -474,6 +477,8 @@ document.addEventListener ('keydown', (evt) => {
 			}
 			break;
 		case "ArrowLeft":
+			evt.preventDefault();
+			evt.stopPropagation();
 			dI--;
 			if(dI<0){
 				dI = dFileList.length - 1;
@@ -482,6 +487,8 @@ document.addEventListener ('keydown', (evt) => {
 			//newImage(dFileList[dI]);
 			break;
 		case "ArrowRight":
+			evt.preventDefault();
+			evt.stopPropagation();
 			dI++;
 			if(dI == dFileList.length){
 				dI = 0;
