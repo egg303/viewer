@@ -17,6 +17,6 @@
   },
   "homepage": "https://github.com/egg303/viewer#readme",
   "devDependencies": {
-    "electron": "^3.0.6"
+    "electron": "^3.0.8"
   }
 }

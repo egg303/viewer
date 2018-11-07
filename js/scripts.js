@@ -106,25 +106,21 @@ function dCenter(){
 		dImage.style.left = "0px";
 		if(dScrollBarX){
 			dScrollX = getDCenterX()-((window.innerWidth)/2);
-			//dImage.style.left = "0px";
 			dImgX = ((window.innerWidth)/2)-(dImage.naturalWidth/2);
 			if(dImgX<0) dImgX = 0;
 			dImage.style.left = dImgX.toString()+"px";
 		} else {
 			dScrollX = 0;
-			//setDCenterX((dImage.naturalWidth/2));
 			dImgX = ((window.innerWidth)/2)-(dImage.naturalWidth/2);
 			dImage.style.left = dImgX.toString()+"px";
 		}
 		if(dScrollBarY){
 			dScrollY = getDCenterY()-((window.innerHeight)/2);
-			//dImage.style.top = "0px";
 			dImgY = (window.innerHeight/2)-(dImage.naturalHeight/2);
 			if(dImgY<0) dImgY=0;
 			dImage.style.top = dImgY.toString()+"px";
 		} else {
 			dScrollY = 0;
-			//setDCenterY((dImage.naturalHeight/2));
 			dImgY = (window.innerHeight/2)-(dImage.naturalHeight/2);
 			dImage.style.top = dImgY.toString()+"px";
 		}
@@ -137,25 +133,21 @@ function dCenter(){
 		dVideo.style.left = "0px";
 		if(dScrollBarX){
 			dScrollX = getDCenterX()-((window.innerWidth)/2);
-			//dVideo.style.left = "0px";
 			dImgX = ((window.innerWidth)/2)-(dVideo.width/2);
 			if(dImgX<0) dImgX = 0;
 			dVideo.style.left = dImgX.toString()+"px";
 		} else {
 			dScrollX = 0;
-			//setDCenterX((dVideo.naturalWidth/2));
 			dImgX = ((window.innerWidth)/2)-(dVideo.width/2);
 			dVideo.style.left = dImgX.toString()+"px";
 		}
 		if(dScrollBarY){
 			dScrollY = getDCenterY()-((window.innerHeight)/2);
-			//dVideo.style.top = "0px";
 			dImgY = (window.innerHeight/2)-(dVideo.height/2);
 			if(dImgY<0) dImgY=0;
 			dVideo.style.top = dImgY.toString()+"px";
 		} else {
 			dScrollY = 0;
-			//setDCenterY((dVideo.naturalHeight/2));
 			dImgY = (window.innerHeight/2)-(dVideo.height/2);
 			dVideo.style.top = dImgY.toString()+"px";
 		}
