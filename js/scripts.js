@@ -6,6 +6,8 @@ var app = require('electron').remote;
 var dialog = app.dialog;
 var path = require('path');
 
+console.log("Version: " + app.app.getVersion());
+
 let dZoom, dImage, dZoomWidth, dZoomHeight, dScrollBarX, dScrollBarY, dImgX, dImgY;
 let dFileList, dValidExtensionsImg, dValidExtensionsVid, dValidExtensions, dI, dDirectory, dImageName;
 let dVideo,dIsImg, dIsFullscreen, dZoomPre, dZoomArray;
