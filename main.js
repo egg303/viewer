@@ -2,6 +2,7 @@ const electron = require('electron');
 const {app, BrowserWindow, Menu, protocol, ipcMain} = require('electron');
 const log = require("electron-log");
 const {autoUpdater} = require("electron-updater");
+//const ipcMain = require('electron').ipcMain;
 
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
@@ -60,3 +61,16 @@ app.on('activate', () => {
 // In dieser Datei können Sie den Rest des App-spezifischen
 // Hauptprozess-Codes einbinden, Sie können den Code auch
 // auf mehreren Dateien aufteilen und diese hier einbinden.
+
+// read the file and send data to the render process
+ipcMain.on('get-file-path', function(event) {
+  var dFilePath = "";
+  if (process.platform == 'win32' && process.argv.length >= 2) {
+    dFilePath = process.argv[1];
+  }
+  event.returnValue = dFilePath;
+})
+
+/*ipcMain.on('open-dev-tools', function(event) {
+	win.webContents.openDevTools();
+})*/

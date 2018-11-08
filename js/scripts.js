@@ -5,12 +5,13 @@ var fs = require('fs'); // Load the File System to execute our common tasks (CRU
 var app = require('electron').remote; 
 var dialog = app.dialog;
 var path = require('path');
+const ipcRenderer = require('electron').ipcRenderer;
 
 console.log("Version: " + app.app.getVersion());
 
 let dZoom, dImage, dZoomWidth, dZoomHeight, dScrollBarX, dScrollBarY, dImgX, dImgY;
 let dFileList, dValidExtensionsImg, dValidExtensionsVid, dValidExtensions, dI, dDirectory, dImageName;
-let dVideo,dIsImg, dIsFullscreen, dZoomPre, dZoomArray;
+let dVideo,dIsImg, dIsFullscreen, dZoomPre, dZoomArray, dArgvFile;
 // global zoom level
 dZoom = 1.0;
 // the zoom level needed to fit the image horizontally in the window
@@ -48,6 +49,14 @@ dImage = document.querySelector("#dImg");
 dVideo = document.querySelector('#dVid');
 dVideoSrc = document.querySelector('#dVidSrc');
 
+dArgvFile = ipcRenderer.sendSync('get-file-path');
+if (dArgvFile ===  null) {
+    console.log("There is no argv[1]");
+} else {
+    console.log("argv[1]: " + dArgvFile);
+    dGetFileList(dArgvFile);
+}
+
 dImage.onload = function(){
 	console.log("Image loaded.");
 	//dZoom = 1.0;
@@ -60,6 +69,7 @@ dImage.onload = function(){
 	setDCenterY(dImage.naturalHeight/2)
 	dCenter();
 	fitToWindow();
+	dCenter();
 	setTimeout(function() {dImage.hidden = false;}, 0);
 	//dImage.hidden = false;
 }
@@ -76,6 +86,7 @@ dVideo.addEventListener( "loadedmetadata", function (e) {
 	setDCenterY(dVideo.height/2)
 	dCenter();
 	fitToWindow();
+	dCenter();
 }, false );
 
 function newImage(path){
@@ -281,6 +292,54 @@ dVideo.addEventListener('click', function(){
 		dVideo.pause();
 });
 
+function dGetFileList(fileName_){
+	//document.getElementById("actual-file").value = fileNames[0];
+	//readFile(fileNames[0]);
+	//newImage(fileName_);
+	console.log("Selected: " + fileName_);
+
+	// from https://stackoverflow.com/questions/2727167/how-do-you-get-a-list-of-the-names-of-all-files-present-in-a-directory-in-node-j
+	dDirectory = path.dirname(fileName_);
+	console.log(dDirectory);
+	dImageName = path.basename(fileName_);
+	console.log(dImageName);
+	console.log(path.join(dDirectory,dImageName));
+	fs.readdir(dDirectory, (err, files) => {
+		dFileList = [];
+		console.log(files);
+		// the for loop is notably faster than the .forEach function
+		for(var i = 0; i<files.length;i++){
+			var file = files[i];
+			if(fs.statSync(path.join(dDirectory,file)).isFile()){
+				console.log("is file: " + file);
+				let dExt = path.extname(file).toLowerCase();
+				console.log(dExt);
+				if(dValidExtensions.includes(dExt)){
+					dFileList.push(path.join(dDirectory,file));
+					console.log(path.join(dDirectory,file) + " added to list.");
+				}
+			}
+		}
+		/*files.forEach(file => {
+			if(fs.statSync(path.join(dDirectory,file)).isFile()){
+				console.log("is file: " + file);
+				let dExt = path.extname(file).toLowerCase();
+				console.log(dExt);
+				if(dValidExtensions.includes(dExt)){
+					dFileList.push(path.join(dDirectory,file));
+					console.log(file + " added to list.");
+				}
+			}
+		});*/
+		console.log("All Files: " + files);
+		console.log("Only Images: " + dFileList);
+		dI = dFileList.indexOf(path.join(dDirectory,dImageName));
+		console.log(dFileList.indexOf(path.join(dDirectory,dImageName)));
+		dChangeContent(dI);
+	})
+	//fit to screen
+}
+
 function dChangeContent(dI_){
 	let dExt = path.extname(dFileList[dI_]).toLowerCase();
 	if(dValidExtensionsImg.includes(dExt)){
@@ -331,67 +390,15 @@ document.addEventListener ('keydown', (evt) => {
                 if(fileName === undefined){
                     console.log("No file selected");
                 }else{
-                    //document.getElementById("actual-file").value = fileNames[0];
-                    //readFile(fileNames[0]);
-                    newImage(fileName[0]);
-                    console.log(fileName[0]);
-
-                    // from https://stackoverflow.com/questions/2727167/how-do-you-get-a-list-of-the-names-of-all-files-present-in-a-directory-in-node-j
-                    dDirectory = path.dirname(fileName[0]);
-                    console.log(dDirectory);
-                    dImageName = path.basename(fileName[0]);
-                    console.log(dImageName);
-					fs.readdir(dDirectory, (err, files) => {
-						dFileList = [];
-						console.log(files);
-						// the for loop is notably faster than the .forEach function
-						for(var i = 0; i<files.length;i++){
-							var file = files[i];
-							if(fs.statSync(path.join(dDirectory,file)).isFile()){
-					  			console.log("is file: " + file);
-					  			let dExt = path.extname(file).toLowerCase();
-					  			console.log(dExt);
-					  			if(dValidExtensions.includes(dExt)){
-					  				dFileList.push(path.join(dDirectory,file));
-					  				console.log(file + " added to list.");
-					  			}
-					  		}
-						}
-					  	/*files.forEach(file => {
-					  		if(fs.statSync(path.join(dDirectory,file)).isFile()){
-					  			console.log("is file: " + file);
-					  			let dExt = path.extname(file).toLowerCase();
-					  			console.log(dExt);
-					  			if(dValidExtensions.includes(dExt)){
-					  				dFileList.push(path.join(dDirectory,file));
-					  				console.log(file + " added to list.");
-					  			}
-					  		}
-					  	});*/
-					  	console.log("All Files: " + files);
-					  	console.log("Only Images: " + dFileList);
-					  	dI = dFileList.indexOf(path.join(dDirectory,dImageName));
-					  	console.log(dFileList.indexOf(path.join(dDirectory,dImageName)));
-					})
-                    //fit to screen
+                	dGetFileList(fileName[0]);
                 }
             });
- 
-			// Note that the previous example will handle only 1 file, if you want that the dialog accepts multiple files, then change the settings:
-			// And obviously , loop through the fileNames and read every file manually
-			/*dialog.showOpenDialog({ 
-			    properties: [ 
-			        'openFile', 'multiSelections', (fileNames) => {
-			            console.log(fileNames);
-			        }
-			    ]
-			});*/
 			break;
 		case "j":
 			console.log(dFileList);
 			break;
 		case "k":
-			dSetZoom(0.248);
+			//ipcRenderer.sendSync('open-dev-tools');
 			break;
 		case "p":
 			dSetZoom(0.252);
