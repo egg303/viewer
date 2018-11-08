@@ -1,7 +1,13 @@
-const electron = require('electron')
-const {app, BrowserWindow} = require('electron')
+const electron = require('electron');
+const {app, BrowserWindow, Menu, protocol, ipcMain} = require('electron');
+const log = require("electron-log");
+const {autoUpdater} = require("electron-updater");
 
-let win
+autoUpdater.logger = log;
+autoUpdater.logger.transports.file.level = 'info';
+log.info('App start');
+
+let win;
 
 function createWindow(){
 	// Erstelle das Browser Fenster
@@ -26,6 +32,13 @@ function createWindow(){
 // Initialisierung fertig ist und Browserfenster erschaffen kann.
 // Einige APIs können nur nach dem Auftreten dieses Events genutzt werden.
 app.on('ready', createWindow)
+
+// This will immediately download an update, then install when the
+// app quits.
+//-------------------------------------------------------------------
+app.on('ready', function()  {
+  autoUpdater.checkForUpdatesAndNotify();
+});
 
 // Verlassen, wenn alle Fenster geschlossen sind.
 app.on('window-all-closed', () => {
