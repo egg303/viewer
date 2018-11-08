@@ -1,6 +1,6 @@
 {
   "name": "dViewer",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Image Viewer",
   "main": "main.js",
   "scripts": {
@@ -41,9 +41,8 @@
       "icon": "build/icon.ico"
     },
     "nsis": {
-      "oneClick": false,
+      "oneClick": true,
       "perMachine": false,
-      "allowToChangeInstallationDirectory": true,
       "installerIcon": "build/installerIcon.ico",
       "installerHeader": "build/installerHeader.bmp",
       "installerHeaderIcon": "build/installerHeaderIcon.ico",
