@@ -64,8 +64,8 @@ app.on('activate', () => {
 
 // read the file and send data to the render process
 ipcMain.on('get-file-path', function(event) {
-  var dFilePath = "";
-  if (process.platform == 'win32' && process.argv.length >= 2) {
+  var dFilePath = null;
+  if (process.platform == 'win32' && process.argv.length >= 2 && process.argv[1].length >= 3) {
     dFilePath = process.argv[1];
   }
   event.returnValue = dFilePath;
