@@ -49,29 +49,23 @@ dImage = document.querySelector("#dImg");
 dVideo = document.querySelector('#dVid');
 dVideoSrc = document.querySelector('#dVidSrc');
 
-dArgvFile = ipcRenderer.sendSync('get-file-path');
-if (dArgvFile ===  null) {
-    console.log("There is no argv[1]");
-} else {
-    console.log("argv[1]: " + dArgvFile);
-    dGetFileList(dArgvFile);
-}
-
 dImage.onload = function(){
-	console.log("Image loaded.");
-	//dZoom = 1.0;
-	
-	dScrollBarX = false;
-	dScrollBarY = false;
-	dImgX = 0;
-	dImgY = 0;
-	setDCenterX(dImage.naturalWidth/2)
-	setDCenterY(dImage.naturalHeight/2)
-	dCenter();
-	fitToWindow();
-	dCenter();
-	setTimeout(function() {dImage.hidden = false;}, 0);
-	//dImage.hidden = false;
+	if(dIsImg){
+		console.log("Image loaded.");
+		//dZoom = 1.0;
+		
+		dScrollBarX = false;
+		dScrollBarY = false;
+		dImgX = 0;
+		dImgY = 0;
+		setDCenterX(dImage.naturalWidth/2)
+		setDCenterY(dImage.naturalHeight/2)
+		dCenter();
+		fitToWindow();
+		dCenter();
+		setTimeout(function() {dImage.hidden = false;}, 0);
+		//dImage.hidden = false;
+	}
 }
 
 dVideo.addEventListener( "loadedmetadata", function (e) {
@@ -87,6 +81,9 @@ dVideo.addEventListener( "loadedmetadata", function (e) {
 	dCenter();
 	fitToWindow();
 	dCenter();
+	if(!dIsImg){
+		dImage.hidden = true;
+	}
 }, false );
 
 function newImage(path){
@@ -279,8 +276,7 @@ function dSetZoom(dZoom_){
 }
 
 function newVideo(path){
-	dZoom = 1.0;
-	webFrame.setZoomFactor(dZoom);
+	dSetZoom(1.0);
 	dVideo.src = path;
 	document.title = path;
 }
@@ -320,17 +316,6 @@ function dGetFileList(fileName_){
 				}
 			}
 		}
-		/*files.forEach(file => {
-			if(fs.statSync(path.join(dDirectory,file)).isFile()){
-				console.log("is file: " + file);
-				let dExt = path.extname(file).toLowerCase();
-				console.log(dExt);
-				if(dValidExtensions.includes(dExt)){
-					dFileList.push(path.join(dDirectory,file));
-					console.log(file + " added to list.");
-				}
-			}
-		});*/
 		console.log("All Files: " + files);
 		console.log("Only Images: " + dFileList);
 		dI = dFileList.indexOf(path.join(dDirectory,dImageName));
@@ -395,7 +380,7 @@ document.addEventListener ('keydown', (evt) => {
             });
 			break;
 		case "j":
-			console.log(dFileList);
+			dImage.hidden = false;
 			break;
 		case "k":
 			//ipcRenderer.sendSync('open-dev-tools');
@@ -502,3 +487,11 @@ document.addEventListener ('keydown', (evt) => {
 			break;
 	}
 })
+
+dArgvFile = ipcRenderer.sendSync('get-file-path');
+if (dArgvFile ===  null) {
+    console.log("There is no argv[1]");
+} else {
+    console.log("argv[1]: " + dArgvFile);
+    dGetFileList(dArgvFile);
+}

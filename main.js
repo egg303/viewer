@@ -29,6 +29,7 @@ function createWindow(){
 	})
 }
 
+app.commandLine.appendSwitch('autoplay-policy','no-user-gesture-required');
 // Diese Methode wird aufgerufen, wenn Electron mit der
 // Initialisierung fertig ist und Browserfenster erschaffen kann.
 // Einige APIs können nur nach dem Auftreten dieses Events genutzt werden.
